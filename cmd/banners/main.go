@@ -14,12 +14,13 @@ const (
 	envProd  = "prod"
 )
 
+// todo add logging everywhere
 func main() {
 	cfg := config.MustLoad()
 
 	logger := initLogger(cfg.Env)
 	logger.Info("starting application")
-	// todo: init banner-app
+
 	app, err := app2.New(cfg, logger)
 	if err != nil {
 		panic(err)

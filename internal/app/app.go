@@ -5,7 +5,7 @@ import (
 	"banner-service/internal/config"
 	"banner-service/internal/services/banner"
 	"banner-service/internal/storage/local"
-	repo "banner-service/internal/storage/postgres"
+	repository "banner-service/internal/storage/postgres"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -24,7 +24,7 @@ func New(cfg config.Config, logger *slog.Logger) (*App, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	repo := repo.New(db)
+	repo := repository.New(db)
 	cacheRepo := local.New()
 	service := banner.New(repo, cacheRepo, logger)
 	server := http.New(logger, cfg, service)

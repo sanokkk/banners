@@ -5,6 +5,7 @@ import (
 	"banner-service/internal/domain/models"
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	"log/slog"
 	"strconv"
 	"time"
@@ -50,7 +51,7 @@ type BannerService interface {
 
 	CreateBanner(
 		ctx context.Context,
-		tagIds []int,
+		tagIds pq.Int32Array,
 		featureId int,
 		content string,
 		isActive bool,
@@ -59,7 +60,7 @@ type BannerService interface {
 	UpdateBanner(
 		ctx context.Context,
 		id int,
-		tagIds []int,
+		tagIds pq.Int32Array,
 		featureId int,
 		content string,
 		isActive bool,
@@ -95,7 +96,7 @@ func (s *Server) MustServe() {
 func (s *Server) groupUserBanner(group *gin.RouterGroup) {
 	group.Use(s.baseAuthMiddleware)
 
-	group.GET("/user_banner", s.handleGetUserBanner)
+	group.GET("", s.handleGetUserBanner)
 }
 
 // groupBanner groups methods for /banner route
@@ -105,4 +106,5 @@ func (s *Server) groupBanner(group *gin.RouterGroup) {
 	group.GET("", s.handleGetBanner)
 	group.POST("", s.handleCreateBanner)
 	group.PATCH("/:id", s.handleUpdateBanner)
+	group.DELETE("/:id", s.handleDeleteBanner)
 }

@@ -19,6 +19,7 @@ func main() {
 	}
 
 	MustMigrate(db)
+	fmt.Println("migration ended successfully")
 }
 
 func MustMigrate(db *gorm.DB) {

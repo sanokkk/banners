@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 	"time"
 )
@@ -31,9 +32,11 @@ func (s *Storage) GetUserBanner(
 	var resultBanner models.Banner
 
 	db := s.db.WithContext(ctx)
+
 	tx := db.
-		Where("TagId=?", tagId).
-		Where("FeatureId=?", featureId).
+		Where("tag_ids @> ?", pq.Int32Array{int32(tagId)}).
+		Where("feature_id=?", featureId).
+		Where("is_active=?", true).
 		First(&resultBanner)
 
 	if tx.RowsAffected == 0 {
@@ -83,7 +86,7 @@ func (s *Storage) GetBanners(
 
 func (s *Storage) CreateBanner(
 	ctx context.Context,
-	tagIds []int,
+	tagIds pq.Int32Array,
 	featureId int,
 	content string,
 	isActive bool,
@@ -113,7 +116,7 @@ func (s *Storage) CreateBanner(
 func (s *Storage) UpdateBanner(
 	ctx context.Context,
 	id int,
-	tagIds []int,
+	tagIds pq.Int32Array,
 	featureId int,
 	content string,
 	isActive bool,

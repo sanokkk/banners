@@ -8,7 +8,7 @@ import (
 
 var ErrValidation = errors.New("Некорректные данные")
 
-var validatorObject = validator.Validate{}
+var validatorObject = validator.New(validator.WithRequiredStructEnabled())
 
 func ValidateGetUserBannerRequest(req requests.GetUserBannerRequest) error {
 	if err := validatorObject.Struct(req); err != nil {

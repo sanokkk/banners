@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 	"log/slog"
 )
 
@@ -37,7 +38,7 @@ type bannersRepo interface {
 
 	CreateBanner(
 		ctx context.Context,
-		tagIds []int,
+		tagIds pq.Int32Array,
 		featureId int,
 		content string,
 		isActive bool,
@@ -46,7 +47,7 @@ type bannersRepo interface {
 	UpdateBanner(
 		ctx context.Context,
 		id int,
-		tagIds []int,
+		tagIds pq.Int32Array,
 		featureId int,
 		content string,
 		isActive bool,
@@ -65,7 +66,7 @@ type bannersCacheRepo interface {
 	) (*models.Banner, error)
 
 	CreateCacheBanner(
-		tagIds []int,
+		tagIds pq.Int32Array,
 		featureId int,
 		content string,
 		isActive bool,
@@ -73,7 +74,7 @@ type bannersCacheRepo interface {
 
 	UpdateCacheBanner(
 		featureId int,
-		tagIds []int,
+		tagIds pq.Int32Array,
 		banner models.Banner,
 	)
 
@@ -126,7 +127,7 @@ func (s *Service) GetBanners(
 
 func (s *Service) CreateBanner(
 	ctx context.Context,
-	tagIds []int,
+	tagIds pq.Int32Array,
 	featureId int,
 	content string,
 	isActive bool,
@@ -155,7 +156,7 @@ func (s *Service) CreateBanner(
 func (s *Service) UpdateBanner(
 	ctx context.Context,
 	id int,
-	tagIds []int,
+	tagIds pq.Int32Array,
 	featureId int,
 	content string,
 	isActive bool,
@@ -206,10 +207,11 @@ func (s *Service) DeleteBanner(
 	return nil
 }
 
-// todo make it background
 func (s *Service) UpdateCache() {
 	const op = "services:banner:UpdateCache"
 	logger := s.log.With(slog.String("op", op))
+
+	logger.Info("starting updating cache")
 
 	bannersFromCache := s.bannersCacheRepo.GetCacheBanners()
 	if len(bannersFromCache) == 0 {
@@ -219,7 +221,9 @@ func (s *Service) UpdateCache() {
 	ctx := context.Background()
 
 	for _, cached := range bannersFromCache {
-		bannerFromDb, err := s.bannersRepo.GetUserBanner(ctx, cached.TagIds[0], cached.FeatureId)
+		var tagsArray []int
+		_ = cached.TagIds.Scan(tagsArray)
+		bannerFromDb, err := s.bannersRepo.GetUserBanner(ctx, tagsArray[0], cached.FeatureId)
 		if err != nil {
 			logger.Warn("error while getting banner to update cache", slog.String("err", err.Error()))
 			continue

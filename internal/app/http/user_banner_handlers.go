@@ -9,29 +9,32 @@ import (
 	"net/http"
 )
 
-// todo: return dto instead of banner model
 func (s *Server) handleGetUserBanner(c *gin.Context) {
 	var requestModel requests.GetUserBannerRequest
 	if err := c.ShouldBindQuery(&requestModel); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+
+		return
 	}
 
 	if err := validation.ValidateGetUserBannerRequest(requestModel); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, err)
+
+		return
 	}
 
-	var useLastRevisionParameter bool
+	/*var useLastRevisionParameter bool
 	if requestModel.UseLastRevision == nil {
 		useLastRevisionParameter = false
 	} else {
 		useLastRevisionParameter = *requestModel.UseLastRevision
-	}
+	}*/
 
 	banner, err := s.Service.GetUserBanner(
 		c,
 		requestModel.TagId,
 		requestModel.FeatureId,
-		useLastRevisionParameter)
+		requestModel.UseLastRevision)
 
 	if err != nil {
 		if errors.Is(err, services.ErrServiceNotFound) {

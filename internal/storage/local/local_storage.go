@@ -3,6 +3,7 @@ package local
 import (
 	"banner-service/internal/domain/models"
 	"banner-service/internal/storage"
+	"github.com/lib/pq"
 	"sync"
 	"time"
 )
@@ -21,7 +22,6 @@ func New() *LocalStorage {
 	return &LocalStorage{Banners: make(map[LocalStorageKey]*models.Banner)}
 }
 
-// todo add update background method
 func (s *LocalStorage) GetBannerFromCache(
 	tagId int,
 	featureId int,
@@ -42,7 +42,7 @@ func (s *LocalStorage) GetBannerFromCache(
 }
 
 func (s *LocalStorage) CreateCacheBanner(
-	tagIds []int,
+	tagIds pq.Int32Array,
 	featureId int,
 	content string,
 	isActive bool,
@@ -58,7 +58,7 @@ func (s *LocalStorage) CreateCacheBanner(
 
 	for _, tagId := range tagIds {
 		if success := s.RWMutex.TryLock(); success {
-			key := LocalStorageKey{FeatureId: featureId, TagId: tagId}
+			key := LocalStorageKey{FeatureId: featureId, TagId: int(tagId)}
 			s.Banners[key] = banner
 			s.RWMutex.Unlock()
 		} else {
@@ -69,8 +69,10 @@ func (s *LocalStorage) CreateCacheBanner(
 	return nil
 }
 
-func (s *LocalStorage) UpdateCacheBanner(featureId int, tagIds []int, banner models.Banner) {
-	for _, tagId := range tagIds {
+func (s *LocalStorage) UpdateCacheBanner(featureId int, tagIds pq.Int32Array, banner models.Banner) {
+	var tagsArray []int
+	_ = tagIds.Scan(tagsArray)
+	for _, tagId := range tagsArray {
 		key := LocalStorageKey{FeatureId: featureId, TagId: tagId}
 
 		s.RWMutex.Lock()

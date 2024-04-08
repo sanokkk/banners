@@ -3,6 +3,6 @@ api:
   port: 8080
   timeout: 50ms
 db:
-  connection_string: "postgres://admin:admax@localhost:5432/banner"
+  connection_string: "postgres://admin:admax@localhost:5433/banner"
 cache_config:
-  time_to_update: 10m
+  time_to_update: 5m
