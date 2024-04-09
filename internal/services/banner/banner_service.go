@@ -2,6 +2,7 @@ package banner
 
 import (
 	"banner-service/internal/domain/models"
+	"banner-service/internal/lib/slice"
 	"banner-service/internal/services"
 	"banner-service/internal/storage"
 	"context"
@@ -221,8 +222,8 @@ func (s *Service) UpdateCache() {
 	ctx := context.Background()
 
 	for _, cached := range bannersFromCache {
-		var tagsArray []int
-		_ = cached.TagIds.Scan(tagsArray)
+		tagsArray := slice.ConvertToIntSlice(cached.TagIds)
+
 		bannerFromDb, err := s.bannersRepo.GetUserBanner(ctx, tagsArray[0], cached.FeatureId)
 		if err != nil {
 			logger.Warn("error while getting banner to update cache", slog.String("err", err.Error()))

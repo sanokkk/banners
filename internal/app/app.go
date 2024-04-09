@@ -19,7 +19,7 @@ type App struct {
 func New(cfg config.Config, logger *slog.Logger) (*App, error) {
 	const op = "app:New"
 
-	db, err := gorm.Open(postgres.Open(cfg.DbConfig.ConnectionString))
+	db, err := gorm.Open(postgres.Open(cfg.DbConfig.ConnectionString + cfg.DbConfig.Database))
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

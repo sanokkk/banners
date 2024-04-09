@@ -2,6 +2,7 @@ package local
 
 import (
 	"banner-service/internal/domain/models"
+	"banner-service/internal/lib/slice"
 	"banner-service/internal/storage"
 	"github.com/lib/pq"
 	"sync"
@@ -59,7 +60,9 @@ func (s *LocalStorage) CreateCacheBanner(
 	for _, tagId := range tagIds {
 		if success := s.RWMutex.TryLock(); success {
 			key := LocalStorageKey{FeatureId: featureId, TagId: int(tagId)}
-			s.Banners[key] = banner
+			if _, ok := s.Banners[key]; !ok {
+				s.Banners[key] = banner
+			}
 			s.RWMutex.Unlock()
 		} else {
 			return storage.ErrInsertInCache
@@ -70,8 +73,7 @@ func (s *LocalStorage) CreateCacheBanner(
 }
 
 func (s *LocalStorage) UpdateCacheBanner(featureId int, tagIds pq.Int32Array, banner models.Banner) {
-	var tagsArray []int
-	_ = tagIds.Scan(tagsArray)
+	tagsArray := slice.ConvertToIntSlice(tagIds)
 	for _, tagId := range tagsArray {
 		key := LocalStorageKey{FeatureId: featureId, TagId: tagId}
 

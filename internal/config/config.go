@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
 	"os"
 	"time"
@@ -22,6 +21,7 @@ type Config struct {
 
 type DbConfig struct {
 	ConnectionString string `yaml:"connection_string" env-required:"true"`
+	Database         string `yaml:"database"`
 }
 
 type CacheConfig struct {
@@ -33,18 +33,10 @@ type ApiConfig struct {
 	Timeout time.Duration `yaml:"timeout" env-default:"1s"`
 }
 
-func MustLoad() Config {
+func MustLoad(path string) Config {
 	const op = "config:MustLoad"
-	if err := godotenv.Load(); err != nil {
-		panic(fmt.Errorf("%s: %w", op, err))
-	}
 
-	configPath := os.Getenv("CONFIG")
-	if configPath == "" {
-		panic(fmt.Errorf("%s: %w", op, ErrConfigPathEmpty))
-	}
-
-	fileBytes, err := os.ReadFile(configPath)
+	fileBytes, err := os.ReadFile(path)
 	if err != nil {
 		panic(fmt.Errorf("%s: %w", op, err))
 	}

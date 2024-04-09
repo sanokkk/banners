@@ -1,30 +1,21 @@
 package main
 
 import (
-	config "banner-service/internal/config"
-	"banner-service/internal/domain/models"
+	"banner-service/cmd/migrator/migrations"
+	"banner-service/internal/config"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/joho/godotenv"
+	"os"
 )
 
 func main() {
 	const op = "migrator:main"
-
-	cfg := config.MustLoad().DbConfig
-
-	db, err := gorm.Open(postgres.Open(cfg.ConnectionString), &gorm.Config{})
-	if err != nil {
-		panic(fmt.Errorf("%s:%w", op, err))
+	if err := godotenv.Load(); err != nil {
+		panic(err)
 	}
 
-	MustMigrate(db)
+	cfg := config.MustLoad(os.Getenv("CONFIG"))
+	migrations.MustMigrateWithConfig(cfg.DbConfig)
+
 	fmt.Println("migration ended successfully")
-}
-
-func MustMigrate(db *gorm.DB) {
-	const op = "migrator:MustMigrate"
-	if err := db.AutoMigrate(&models.Banner{}); err != nil {
-		panic(fmt.Errorf("%s:%w", op, err))
-	}
 }

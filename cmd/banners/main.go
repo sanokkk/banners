@@ -3,6 +3,7 @@ package main
 import (
 	app2 "banner-service/internal/app"
 	"banner-service/internal/config"
+	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
 	"time"
@@ -16,7 +17,11 @@ const (
 
 // todo add logging everywhere
 func main() {
-	cfg := config.MustLoad()
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+
+	cfg := config.MustLoad(os.Getenv("CONFIG"))
 
 	logger := initLogger(cfg.Env)
 	logger.Info("starting application")
