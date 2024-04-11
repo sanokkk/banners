@@ -4,6 +4,6 @@ api:
   timeout: 50ms
 db:
   connection_string: "postgres://admin:admax@localhost:5433/"
-  database: "banner_test"
+  database: "banner"
 cache_config:
   time_to_update: 3m

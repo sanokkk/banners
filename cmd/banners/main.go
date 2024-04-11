@@ -3,6 +3,7 @@ package main
 import (
 	app2 "banner-service/internal/app"
 	"banner-service/internal/config"
+	"banner-service/internal/storage/migrations"
 	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
@@ -10,9 +11,8 @@ import (
 )
 
 const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
+	envLocal  = "local"
+	envDocker = "docker"
 )
 
 // todo add logging everywhere
@@ -22,8 +22,11 @@ func main() {
 	}
 
 	cfg := config.MustLoad(os.Getenv("CONFIG"))
-
 	logger := initLogger(cfg.Env)
+
+	migrations.MustMigrateWithConfig(cfg.DbConfig)
+	logger.Info("migrations ended successfully")
+
 	logger.Info("starting application")
 
 	app, err := app2.New(cfg, logger)
@@ -56,11 +59,8 @@ func initLogger(env string) *slog.Logger {
 	case envLocal:
 		logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 		break
-	case envDev:
+	case envDocker:
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-		break
-	case envProd:
-		logger = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelWarn}))
 		break
 	}
 
