@@ -1,0 +1,9 @@
+env: "docker"
+api:
+  port: 8080
+  timeout: 50ms
+db:
+  connection_string: "postgres://admin:admax@app:5433/"
+  database: "banner"
+cache_config:
+  time_to_update: 5m

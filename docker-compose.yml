@@ -1,0 +1,36 @@
+version: "3.8"
+
+networks:
+  banner:
+    driver: bridge
+
+services:
+  postgres-banner:
+    restart: always
+    image: postgres:latest
+    ports:
+      - "5434:5433"
+    volumes:
+      - postgres-banner:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admax
+      - POSTGRES_DB=banner
+    networks:
+      - banner
+  app:
+    build: ./
+    command: ./bin/banners
+    networks:
+      - banner
+    ports:
+      - 8080:8090
+    depends_on:
+      - postgres-banner
+    environment:
+      - CONFIG=./config/docker.yaml
+volumes:
+  postgres-banner:
+    driver: local
+
+
