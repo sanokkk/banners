@@ -15,7 +15,6 @@ const (
 	envDocker = "docker"
 )
 
-// todo add logging everywhere
 func main() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
@@ -24,6 +23,7 @@ func main() {
 	cfg := config.MustLoad(os.Getenv("CONFIG"))
 	logger := initLogger(cfg.Env)
 
+	logger.Info("starting migrations forward")
 	migrations.MustMigrateWithConfig(cfg.DbConfig)
 	logger.Info("migrations ended successfully")
 
@@ -45,8 +45,7 @@ func main() {
 			app.Server.Service.UpdateCache()
 			break
 		case <-stopChan:
-			// todo: add graceful shutdown
-			logger.Info("application stopped")
+			logger.Info("application stopped") // it will be better with graceful shutdown :(
 			os.Exit(1)
 		}
 	}

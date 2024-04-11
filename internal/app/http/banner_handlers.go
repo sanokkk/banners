@@ -12,9 +12,13 @@ import (
 )
 
 func (s *Server) handleGetBanner(c *gin.Context) {
+	const op = "http:handleGetBanner"
+	logger := s.Log.With("op", op)
+
 	var req requests.GetBannerRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -22,6 +26,7 @@ func (s *Server) handleGetBanner(c *gin.Context) {
 	banners, err := s.Service.GetBanners(c, req.TagId, req.FeatureId, req.Limit, req.Offset)
 	if err != nil {
 		s.respondWithError(c, http.StatusInternalServerError, err)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -30,15 +35,20 @@ func (s *Server) handleGetBanner(c *gin.Context) {
 }
 
 func (s *Server) handleCreateBanner(c *gin.Context) {
+	const op = "http:handleCreateBanner"
+	logger := s.Log.With("op", op)
+
 	var req requests.CreateBannerRequest
 	if err := c.ShouldBindBodyWith(&req, binding.JSON); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
 
 	if err := validation.ValidateCreateBannerRequest(req); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -47,6 +57,7 @@ func (s *Server) handleCreateBanner(c *gin.Context) {
 
 	if err != nil {
 		s.respondWithError(c, http.StatusInternalServerError, err)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -55,15 +66,20 @@ func (s *Server) handleCreateBanner(c *gin.Context) {
 }
 
 func (s *Server) handleUpdateBanner(c *gin.Context) {
+	const op = "http:handleUpdateBanner"
+	logger := s.Log.With("op", op)
+
 	var req requests.CreateBannerRequest
 	if err := c.ShouldBindBodyWith(&req, binding.JSON); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
 
 	if err := validation.ValidateCreateBannerRequest(req); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -71,6 +87,7 @@ func (s *Server) handleUpdateBanner(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -78,10 +95,12 @@ func (s *Server) handleUpdateBanner(c *gin.Context) {
 	if err := s.Service.UpdateBanner(c, id, req.TagIds, req.FeatureId, req.Content, req.IsActive); err != nil {
 		if errors.Is(err, services.ErrServiceNotFound) {
 			s.respondWithError(c, http.StatusNotFound, err)
+			logger.Warn(err.Error())
 
 			return
 		}
 		s.respondWithError(c, http.StatusInternalServerError, err)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -90,9 +109,13 @@ func (s *Server) handleUpdateBanner(c *gin.Context) {
 }
 
 func (s *Server) handleDeleteBanner(c *gin.Context) {
+	const op = "http:handleUpdateBanner"
+	logger := s.Log.With("op", op)
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
+		logger.Warn(err.Error())
 
 		return
 	}
@@ -100,10 +123,12 @@ func (s *Server) handleDeleteBanner(c *gin.Context) {
 	if err := s.Service.DeleteBanner(c, id); err != nil {
 		if errors.Is(err, services.ErrServiceNotFound) {
 			s.respondWithError(c, http.StatusNotFound, err)
+			logger.Warn(err.Error())
 
 			return
 		}
 		s.respondWithError(c, http.StatusInternalServerError, err)
+		logger.Warn(err.Error())
 
 		return
 	}

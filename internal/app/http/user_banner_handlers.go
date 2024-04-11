@@ -6,12 +6,17 @@ import (
 	"banner-service/internal/services"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"log/slog"
 	"net/http"
 )
 
 func (s *Server) handleGetUserBanner(c *gin.Context) {
+	const op = "http:handleGetUserBanner"
+	logger := s.Log.With(slog.String("operation", op))
+
 	var requestModel requests.GetUserBannerRequest
 	if err := c.ShouldBindQuery(&requestModel); err != nil {
+		logger.Warn(err.Error())
 		s.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)
 
 		return
@@ -19,16 +24,10 @@ func (s *Server) handleGetUserBanner(c *gin.Context) {
 
 	if err := validation.ValidateGetUserBannerRequest(requestModel); err != nil {
 		s.respondWithError(c, http.StatusBadRequest, err)
+		logger.Warn(err.Error())
 
 		return
 	}
-
-	/*var useLastRevisionParameter bool
-	if requestModel.UseLastRevision == nil {
-		useLastRevisionParameter = false
-	} else {
-		useLastRevisionParameter = *requestModel.UseLastRevision
-	}*/
 
 	banner, err := s.Service.GetUserBanner(
 		c,
@@ -39,10 +38,12 @@ func (s *Server) handleGetUserBanner(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, services.ErrServiceNotFound) {
 			s.respondWithError(c, http.StatusNotFound, err)
+			logger.Warn(err.Error())
 
 			return
 		}
 		s.respondWithError(c, http.StatusInternalServerError, err)
+		logger.Warn(err.Error())
 
 		return
 	}

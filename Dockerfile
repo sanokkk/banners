@@ -1,12 +1,22 @@
-FROM golang:1.22-rc
+FROM golang:1.22-rc AS builder
 
-WORKDIR /app
+COPY ./ /src/build
 
-COPY go.mod go.sum ./
+WORKDIR /src/build
+
+COPY go.mod go.sum /
 RUN go mod download
 
-COPY ./ ./
+COPY . .
+RUN go build -o /src/build/exec /src/build/cmd/banners/main.go
 
-RUN go build -o ./bin/banners ./cmd/banners/main.go
+FROM golang:1.22-rc AS production
 
-CMD ["./bin/banners"]
+COPY --from=builder src/build/config/docker.yaml /config
+COPY --from=builder *exe /build/banners
+
+WORKDIR /
+
+EXPOSE 8080
+
+CMD ["exec"]

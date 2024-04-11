@@ -5,11 +5,11 @@ networks:
     driver: bridge
 
 services:
-  postgres-banner:
+  postgres:
     restart: always
     image: postgres:latest
     ports:
-      - "5434:5433"
+      - "5432:5432"
     volumes:
       - postgres-banner:/var/lib/postgresql/data
     environment:
@@ -19,14 +19,14 @@ services:
     networks:
       - banner
   app:
-    build: ./
+    build: .
     command: ./bin/banners
     networks:
       - banner
     ports:
-      - 8080:8090
+      - 8080:8080
     depends_on:
-      - postgres-banner
+      - postgres
     environment:
       - CONFIG=./config/docker.yaml
 volumes:
