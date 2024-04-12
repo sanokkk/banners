@@ -62,7 +62,7 @@ func (s *Server) handleCreateBanner(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, bannerId)
+	c.JSON(http.StatusCreated, requests.CreateBannerResponse{BannerId: bannerId})
 }
 
 func (s *Server) handleUpdateBanner(c *gin.Context) {

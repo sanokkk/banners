@@ -20,7 +20,7 @@ services:
       - banner
   app:
     build: .
-    command: ./bin/banners
+    command: ./build/banners
     networks:
       - banner
     ports:

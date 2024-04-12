@@ -1,0 +1,199 @@
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+deleted file mode 100644
+--- a/.idea/.gitignore	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ /dev/null	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
+@@ -1,8 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+-# Editor-based HTTP Client requests
+-/httpRequests/
+-# Datasource local storage ignored files
+-/dataSources/
+-/dataSources.local.xml
+Index: .idea/banner-service.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/banner-service.iml b/.idea/banner-service.iml
+deleted file mode 100644
+--- a/.idea/banner-service.iml	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ /dev/null	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
+@@ -1,9 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<module type="WEB_MODULE" version="4">
+-  <component name="Go" enabled="true" />
+-  <component name="NewModuleRootManager">
+-    <content url="file://$MODULE_DIR$" />
+-    <orderEntry type="inheritedJdk" />
+-    <orderEntry type="sourceFolder" forTests="false" />
+-  </component>
+-</module>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+deleted file mode 100644
+--- a/.idea/vcs.xml	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ /dev/null	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="VcsDirectoryMappings">
+-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/http-test/http-test.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/http-test/http-test.json b/.idea/http-test/http-test.json
+deleted file mode 100644
+--- a/.idea/http-test/http-test.json	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ /dev/null	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
+@@ -1,12 +0,0 @@
+-{
+-  "enableAutoRestart": false,
+-  "scanSuffix": "java,rs,kt,go,py",
+-  "scanPath": "",
+-  "fileSuffix": "java,rs,kt,go,py,md,zig",
+-  "excludePath": ".idea,.gradle,.git,node_modules,build",
+-  "bodyType": 0,
+-  "enableDuplicate": true,
+-  "prefixUrl": "",
+-  "history": [],
+-  "commonHeaderList": []
+-}
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+deleted file mode 100644
+--- a/.idea/modules.xml	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ /dev/null	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ProjectModuleManager">
+-    <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/banner-service.iml" filepath="$PROJECT_DIR$/.idea/banner-service.iml" />
+-    </modules>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: internal/app/http/banner_handlers.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package http\r\n\r\nimport (\r\n\t\"banner-service/internal/app/http/requests\"\r\n\t\"banner-service/internal/lib/validation\"\r\n\t\"banner-service/internal/services\"\r\n\t\"errors\"\r\n\t\"github.com/gin-gonic/gin\"\r\n\t\"github.com/gin-gonic/gin/binding\"\r\n\t\"net/http\"\r\n\t\"strconv\"\r\n)\r\n\r\nfunc (s *Server) handleGetBanner(c *gin.Context) {\r\n\tconst op = \"http:handleGetBanner\"\r\n\tlogger := s.Log.With(\"op\", op)\r\n\r\n\tvar req requests.GetBannerRequest\r\n\tif err := c.ShouldBindQuery(&req); err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tbanners, err := s.Service.GetBanners(c, req.TagId, req.FeatureId, req.Limit, req.Offset)\r\n\tif err != nil {\r\n\t\ts.respondWithError(c, http.StatusInternalServerError, err)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tc.IndentedJSON(200, banners)\r\n}\r\n\r\nfunc (s *Server) handleCreateBanner(c *gin.Context) {\r\n\tconst op = \"http:handleCreateBanner\"\r\n\tlogger := s.Log.With(\"op\", op)\r\n\r\n\tvar req requests.CreateBannerRequest\r\n\tif err := c.ShouldBindBodyWith(&req, binding.JSON); err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tif err := validation.ValidateCreateBannerRequest(req); err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tbannerId, err := s.Service.CreateBanner(c, req.TagIds, req.FeatureId, req.Content, req.IsActive)\r\n\r\n\tif err != nil {\r\n\t\ts.respondWithError(c, http.StatusInternalServerError, err)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tc.JSON(http.StatusCreated, bannerId)\r\n}\r\n\r\nfunc (s *Server) handleUpdateBanner(c *gin.Context) {\r\n\tconst op = \"http:handleUpdateBanner\"\r\n\tlogger := s.Log.With(\"op\", op)\r\n\r\n\tvar req requests.CreateBannerRequest\r\n\tif err := c.ShouldBindBodyWith(&req, binding.JSON); err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tif err := validation.ValidateCreateBannerRequest(req); err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tid, err := strconv.Atoi(c.Param(\"id\"))\r\n\tif err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tif err := s.Service.UpdateBanner(c, id, req.TagIds, req.FeatureId, req.Content, req.IsActive); err != nil {\r\n\t\tif errors.Is(err, services.ErrServiceNotFound) {\r\n\t\t\ts.respondWithError(c, http.StatusNotFound, err)\r\n\t\t\tlogger.Warn(err.Error())\r\n\r\n\t\t\treturn\r\n\t\t}\r\n\t\ts.respondWithError(c, http.StatusInternalServerError, err)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tc.Status(http.StatusOK)\r\n}\r\n\r\nfunc (s *Server) handleDeleteBanner(c *gin.Context) {\r\n\tconst op = \"http:handleUpdateBanner\"\r\n\tlogger := s.Log.With(\"op\", op)\r\n\r\n\tid, err := strconv.Atoi(c.Param(\"id\"))\r\n\tif err != nil {\r\n\t\ts.respondWithError(c, http.StatusBadRequest, validation.ErrValidation)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tif err := s.Service.DeleteBanner(c, id); err != nil {\r\n\t\tif errors.Is(err, services.ErrServiceNotFound) {\r\n\t\t\ts.respondWithError(c, http.StatusNotFound, err)\r\n\t\t\tlogger.Warn(err.Error())\r\n\r\n\t\t\treturn\r\n\t\t}\r\n\t\ts.respondWithError(c, http.StatusInternalServerError, err)\r\n\t\tlogger.Warn(err.Error())\r\n\r\n\t\treturn\r\n\t}\r\n\r\n\tc.Status(http.StatusOK)\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/internal/app/http/banner_handlers.go b/internal/app/http/banner_handlers.go
+--- a/internal/app/http/banner_handlers.go	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ b/internal/app/http/banner_handlers.go	(date 1712905373686)
+@@ -62,7 +62,7 @@
+ 		return
+ 	}
+ 
+-	c.JSON(http.StatusCreated, bannerId)
++	c.JSON(http.StatusCreated, requests.CreateBannerResponse{BannerId: bannerId})
+ }
+ 
+ func (s *Server) handleUpdateBanner(c *gin.Context) {
+Index: Dockerfile
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>FROM golang:1.22-rc AS builder\r\n\r\nCOPY ./ /src/build\r\n\r\nWORKDIR /src/build\r\n\r\nCOPY go.mod go.sum /\r\nRUN go mod download\r\n\r\nCOPY . .\r\nRUN go build -o /src/build/exec /src/build/cmd/banners/main.go\r\n\r\nFROM golang:1.22-rc AS production\r\n\r\nCOPY --from=builder src/build/config/docker.yaml /config\r\nCOPY --from=builder *exe /build/banners\r\n\r\nWORKDIR /\r\n\r\nEXPOSE 8080\r\n\r\nCMD [\"exec\"]
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Dockerfile b/Dockerfile
+--- a/Dockerfile	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ b/Dockerfile	(date 1712909068182)
+@@ -12,11 +12,12 @@
+ 
+ FROM golang:1.22-rc AS production
+ 
+-COPY --from=builder src/build/config/docker.yaml /config
+-COPY --from=builder *exe /build/banners
++COPY --from=builder src/build/config /config
++COPY --from=builder /src/build/exec /build/banners
++COPY --from=builder /src/build/.env /
+ 
+ WORKDIR /
+ 
+ EXPOSE 8080
+ 
+-CMD ["exec"]
+\ No newline at end of file
++CMD ["/build/exec"]
+\ No newline at end of file
+Index: docker-compose.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>version: \"3.8\"\r\n\r\nnetworks:\r\n  banner:\r\n    driver: bridge\r\n\r\nservices:\r\n  postgres:\r\n    restart: always\r\n    image: postgres:latest\r\n    ports:\r\n      - \"5432:5432\"\r\n    volumes:\r\n      - postgres-banner:/var/lib/postgresql/data\r\n    environment:\r\n      - POSTGRES_USER=admin\r\n      - POSTGRES_PASSWORD=admax\r\n      - POSTGRES_DB=banner\r\n    networks:\r\n      - banner\r\n  app:\r\n    build: .\r\n    command: ./bin/banners\r\n    networks:\r\n      - banner\r\n    ports:\r\n      - 8080:8080\r\n    depends_on:\r\n      - postgres\r\n    environment:\r\n      - CONFIG=./config/docker.yaml\r\nvolumes:\r\n  postgres-banner:\r\n    driver: local\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docker-compose.yml b/docker-compose.yml
+--- a/docker-compose.yml	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ b/docker-compose.yml	(date 1712905710695)
+@@ -20,7 +20,7 @@
+       - banner
+   app:
+     build: .
+-    command: ./bin/banners
++    command: ./build/banners
+     networks:
+       - banner
+     ports:
+Index: Makefile
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>run:\r\n\tdocker run -d -p 5433:5432 --name postgres_banners -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admax -e POSTGRES_DB=banner postgres\r\n\ttimeout 5\r\n\tgo run ./cmd/banners/main.go\r\n\r\ncontainer:\r\n\tdocker compose up
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Makefile b/Makefile
+--- a/Makefile	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ b/Makefile	(date 1712908125461)
+@@ -4,4 +4,4 @@
+ 	go run ./cmd/banners/main.go
+ 
+ container:
+-	docker compose up
+\ No newline at end of file
++	docker compose up --build
+\ No newline at end of file
+Index: internal/app/http/requests/banner_requests.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package requests\r\n\r\nimport \"github.com/lib/pq\"\r\n\r\ntype GetBannerRequest struct {\r\n\tTagId     *int `json:\"tag_id\"`\r\n\tFeatureId *int `json:\"feature_id\"`\r\n\tLimit     *int `json:\"limit\"`\r\n\tOffset    *int `json:\"offset\"`\r\n}\r\n\r\ntype UpdateBannerRequest struct {\r\n\tTagIds    pq.Int32Array `json:\"tag_ids\" validate:\"required\"`\r\n\tFeatureId int           `json:\"feature_id\" validate:\"required\"`\r\n\tContent   string        `json:\"content\" validate:\"required\"`\r\n\tIsActive  bool          `json:\"is_active\" validate:\"required\"`\r\n}\r\n\r\ntype CreateBannerRequest struct {\r\n\tTagIds    pq.Int32Array `json:\"tag_ids\" validate:\"required\"`\r\n\tFeatureId int           `json:\"feature_id\" validate:\"required\"`\r\n\tContent   string        `json:\"content\" validate:\"required\"`\r\n\tIsActive  bool          `json:\"is_active\" validate:\"required\"`\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/internal/app/http/requests/banner_requests.go b/internal/app/http/requests/banner_requests.go
+--- a/internal/app/http/requests/banner_requests.go	(revision 41e541a2d1dabf7bdd54c647ff8457d9aeff4d64)
++++ b/internal/app/http/requests/banner_requests.go	(date 1712905327245)
+@@ -22,3 +22,7 @@
+ 	Content   string        `json:"content" validate:"required"`
+ 	IsActive  bool          `json:"is_active" validate:"required"`
+ }
++
++type CreateBannerResponse struct {
++	BannerId int `json:"banner_id"`
++}

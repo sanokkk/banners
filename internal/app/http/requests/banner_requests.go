@@ -22,3 +22,7 @@ type CreateBannerRequest struct {
 	Content   string        `json:"content" validate:"required"`
 	IsActive  bool          `json:"is_active" validate:"required"`
 }
+
+type CreateBannerResponse struct {
+	BannerId int `json:"banner_id"`
+}

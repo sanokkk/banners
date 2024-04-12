@@ -161,13 +161,15 @@ func (s *Storage) DeleteBanner(
 
 	db := s.db.WithContext(ctx)
 
-	deleteResult := db.Delete(&models.Banner{}, id)
+	deleteResult := db.Delete(&models.Banner{Id: id})
 	if deleteResult.Error != nil {
 		if errors.Is(deleteResult.Error, gorm.ErrRecordNotFound) {
 			return storage.ErrNotFound
 		}
 
 		return fmt.Errorf("%s: %w", op, deleteResult.Error)
+	} else if deleteResult.RowsAffected < 1 {
+		return storage.ErrNotFound
 	}
 
 	return nil
